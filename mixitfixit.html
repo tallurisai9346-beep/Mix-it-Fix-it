@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mix It. Fix It.</title>
+
+<style>
+/* Basic stuff, I'm bad at CSS so it's not perfect but it works */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #eee5d4;
+    color: #29231d;
+    min-height: 100vh;
+}
+
+body.dark {
+    background: #1b1917;
+    color: #eee7dc;
+}
+
+/* I don't like using CSS variables but it helps with themes */
+:root {
+    --bg: #eee5d4;
+    --card: #f8f1e4;
+    --card2: #ded1bb;
+    --ink: #29231d;
+    --muted: #756b5e;
+    --red: #ad4831;
+    --gold: #d5a13b;
+}
+
+body.dark {
+    --bg: #1b1917;
+    --card: #25221f;
+    --card2: #332e28;
+    --ink: #eee7dc;
+    --muted: #aaa095;
+}
+
+.page {
+    display: none;
+    min-height: 100vh;
+}
+.page.show {
+    display: block;
+}
+
+.wrap {
+    width: 92%;
+    max-width: 1050px;
+    margin: auto;
+}
+
+.top {
+    height: 55px;
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-weight: bold;
+    letter-spacing: 4px;
+}
+.logo span { color: var(--red); }
+
+.top button {
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    padding: 6px 9px;
+    margin-left: 4px;
+    cursor: pointer;
+}
+
+.hero {
+    padding: 65px 0 40px;
+}
+.hero small {
+    color: var(--muted);
+    letter-spacing: 2px;
+}
+.hero h1 {
+    margin: 12px 0;
+    font-size: 80px;
+    line-height: 0.86;
+    letter-spacing: -6px;
+}
+.hero h1 span { color: var(--red); }
+.hero p {
+    max-width: 600px;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.home-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 0.75fr;
+    gap: 24px;
+    padding-bottom: 50px;
+}
+
+.card {
+    border: 2px solid var(--ink);
+    background: var(--card);
+    padding: 20px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.card:after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    width: 100%;
+    height: 100%;
+    border: 1px solid var(--muted);
+    z-index: -1;
+}
+
+.pick-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.pick {
+    min-height: 130px;
+    padding: 16px;
+    border: 1px solid var(--ink);
+    background: var(--card2);
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    display: block;
+}
+.pick:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--red);
+}
+.pick-icon { font-size: 28px; }
+.pick strong { display: block; margin-top: 13px; }
+.pick small { display: block; color: var(--muted); margin-top: 6px; }
+
+.file { display: none; }
+
+.sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+.size {
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    padding: 8px 11px;
+    cursor: pointer;
+}
+.size.selected {
+    background: var(--ink);
+    color: var(--card);
+}
+
+.daily {
+    margin-top: 18px;
+    padding: 13px;
+    background: var(--card2);
+    border-left: 5px solid var(--gold);
+}
+.streak-row {
+    display: flex;
+    justify-content: space-between;
+}
+.streak-week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-top: 12px;
+}
+.day {
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--muted);
+    font-size: 11px;
+}
+.day.done {
+    background: var(--gold);
+    color: #211c15;
+}
+.day.today {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+}
+
+.profile {
+    display: flex;
+    gap: 13px;
+    align-items: center;
+}
+.avatar {
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--ink);
+    background: var(--gold);
+    transform: rotate(-4deg);
+    font-size: 24px;
+}
+.xp {
+    width: 210px;
+    max-width: 100%;
+    height: 6px;
+    background: var(--card2);
+    margin-top: 7px;
+}
+.xp div {
+    height: 100%;
+    width: 0;
+    background: var(--red);
+}
+
+.home-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+.home-stat {
+    border-top: 1px solid var(--muted);
+    padding-top: 8px;
+}
+.home-stat small { display: block; color: var(--muted); }
+
+.mission {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--muted);
+    padding: 10px 0;
+}
+.mission.done {
+    opacity: 0.4;
+    text-decoration: line-through;
+}
+
+.themes {
+    display: flex;
+    gap: 8px;
+}
+.theme {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+    cursor: pointer;
+}
+.theme.paper { background: #e9dfce; }
+.theme.red { background: #b84a32; }
+.theme.blue { background: #587795; }
+.theme.green { background: #5e8060; }
+
+/* game screen */
+.game {
+    width: 94%;
+    max-width: 930px;
+    margin: auto;
+    padding: 15px 0 45px;
+}
+.game-top {
+    height: 45px;
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.game-top button {
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    padding: 7px 10px;
+    cursor: pointer;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+    margin: 12px 0;
+}
+.stat {
+    background: var(--card2);
+    border-top: 2px solid var(--ink);
+    padding: 8px;
+    text-align: center;
+}
+.stat small {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+}
+.stat b { font-size: 17px; }
+
+.play {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 170px;
+    gap: 18px;
+}
+.board-wrap { position: relative; }
+
+#board {
+    width: 100%;
+    max-width: 700px;
+    aspect-ratio: 1;
+    margin: auto;
+    display: grid;
+    gap: 2px;
+    padding: 3px;
+    background: var(--ink);
+    box-shadow: 7px 7px 0 var(--card2);
+}
+
+.tile {
+    border: 0;
+    padding: 0;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.tile:active { transform: scale(0.95); }
+.tile.empty { background: var(--card2) !important; }
+.tile.hint { outline: 4px solid var(--gold); outline-offset: -4px; }
+
+.side {
+    border-left: 2px solid var(--ink);
+    padding: 10px;
+}
+.original {
+    border-bottom: 1px solid var(--muted);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+}
+.original label {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+}
+.original img {
+    width: 80px;
+    height: 80px;
+    display: block;
+    object-fit: cover;
+    border: 1px solid var(--ink);
+    background: var(--card2);
+}
+
+.side button.tool {
+    width: 100%;
+    margin-bottom: 6px;
+    padding: 9px;
+    border: 1px solid var(--ink);
+    background: var(--card2);
+    color: var(--ink);
+    cursor: pointer;
+}
+
+.message {
+    min-height: 25px;
+    text-align: center;
+    padding-top: 12px;
+    color: var(--muted);
+}
+
+.pause {
+    position: absolute;
+    inset: 0;
+    display: none;
+    place-items: center;
+    background: rgba(20, 18, 15, 0.9);
+    color: #fff;
+}
+.pause.show { display: grid; }
+
+/* win screen */
+.win {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+.win-card {
+    width: 100%;
+    max-width: 560px;
+    border: 2px solid var(--ink);
+    background: var(--card);
+    padding: 28px;
+    text-align: center;
+}
+.win-card h1 {
+    margin: 7px 0;
+    font-size: 44px;
+}
+.results {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin: 20px 0;
+}
+.result {
+    border: 1px solid var(--muted);
+    padding: 10px;
+}
+.result small { display: block; color: var(--muted); }
+
+.win-card button {
+    padding: 10px 16px;
+    margin: 4px;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--card);
+    cursor: pointer;
+}
+.win-card button.alt {
+    background: transparent;
+    color: var(--ink);
+}
+
+.confetti {
+    position: fixed;
+    top: -20px;
+    animation: fall 1.6s linear forwards;
+    z-index: 20;
+}
+@keyframes fall {
+    to {
+        top: 110vh;
+        transform: rotate(600deg);
+    }
+}
+
+@media (max-width: 800px) {
+    .home-grid, .play { grid-template-columns: 1fr; }
+    .side {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        border-left: 0;
+        border-top: 2px solid var(--ink);
+    }
+    .original { grid-column: 1 / -1; }
+}
+
+@media (max-width: 550px) {
+    .hero h1 { font-size: 48px; letter-spacing: -3px; }
+    .pick-grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(3, 1fr); }
+    .stats .stat:nth-child(n+4) { display: none; }
+    .results { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Home page -->
+<section id="home" class="page show">
+<div class="wrap">
+
+    <div class="top">
+        <div class="logo">MIX <span>/</span> FIX</div>
+        <div>
+            <button id="soundBtn">🔊</button>
+            <button id="darkBtn">☾</button>
+        </div>
+    </div>
+
+    <div class="hero">
+        <small>SLIDE THE PIECES BACK</small>
+        <h1>Mix it.<br><span>Fix it.</span></h1>
+        <p>Pick a picture, scramble it and put it back together. Quick hands help. Bigger boards are trouble.</p>
+    </div>
+
+    <div class="home-grid">
+
+        <div class="card">
+            <h2>Start a puzzle</h2>
+
+            <div class="pick-grid">
+                <label class="pick">
+                    <input id="photo" class="file" type="file" accept="image/*">
+                    <div class="pick-icon">📷</div>
+                    <strong>My picture</strong>
+                    <small>Use any picture from your phone or computer.</small>
+                </label>
+
+                <button class="pick" id="randomBtn">
+                    <div class="pick-icon">🎲</div>
+                    <strong>Random picture</strong>
+                    <small>One picture at a time. No repeats.</small>
+                </button>
+            </div>
+
+            <h3>Board size</h3>
+            <div class="sizes">
+                <button class="size selected" data-size="2">2 × 2</button>
+                <button class="size" data-size="3">3 × 3</button>
+                <button class="size" data-size="4">4 × 4</button>
+                <button class="size" data-size="5">5 × 5</button>
+                <button class="size" data-size="6">6 × 6</button>
+                <button class="size" data-size="7">7 × 7</button>
+            </div>
+
+            <div class="daily">
+                <div class="streak-row">
+                    <b>🔥 Daily streak</b>
+                    <b id="streakReward">+10 XP</b>
+                </div>
+                <div id="streakText">0 days</div>
+                <div class="streak-week" id="streakWeek"></div>
+                <small id="streakNote">Solve one puzzle today.</small>
+            </div>
+        </div>
+
+        <div>
+            <div class="card">
+                <div class="profile">
+                    <div class="avatar">🧩</div>
+                    <div>
+                        <b id="levelText">Level 1</b>
+                        <div><span id="xpText">0</span> XP</div>
+                        <div class="xp"><div id="xpFill"></div></div>
+                    </div>
+                </div>
+
+                <div class="home-stats">
+                    <div class="home-stat">
+                        <small>Coins</small>
+                        <b id="coinText">0</b>
+                    </div>
+                    <div class="home-stat">
+                        <small>Solved</small>
+                        <b id="solveText">0</b>
+                    </div>
+                    <div class="home-stat">
+                        <small>Streak</small>
+                        <b id="homeStreak">0</b>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Missions</h3>
+                <div class="mission" id="mission1">
+                    <span>Solve your first puzzle</span>
+                    <small>+30</small>
+                </div>
+                <div class="mission" id="mission2">
+                    <span>Make 30 moves</span>
+                    <small>+20</small>
+                </div>
+                <div class="mission" id="mission3">
+                    <span>Beat a 5 × 5</span>
+                    <small>+40</small>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Paper colour</h3>
+                <div class="themes">
+                    <button class="theme paper" data-theme="paper"></button>
+                    <button class="theme red" data-theme="red"></button>
+                    <button class="theme blue" data-theme="blue"></button>
+                    <button class="theme green" data-theme="green"></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</section>
+
+<!-- Game page -->
+<section id="game" class="page">
+<div class="game">
+
+    <div class="game-top">
+        <button id="homeBtn">← Home</button>
+        <b>Mix It. Fix It.</b>
+        <button id="pauseBtn">II</button>
+    </div>
+
+    <div class="stats">
+        <div class="stat"><small>MOVES</small><b id="moves">0</b></div>
+        <div class="stat"><small>TIME</small><b id="timer">00:00</b></div>
+        <div class="stat"><small>COMBO</small><b id="combo">0</b></div>
+        <div class="stat"><small>COINS</small><b id="gameCoins">0</b></div>
+        <div class="stat"><small>HINTS</small><b id="hintCount">3</b></div>
+        <div class="stat"><small>GRID</small><b id="grid">2×2</b></div>
+    </div>
+
+    <div class="play">
+        <div class="board-wrap">
+            <div id="board"></div>
+            <div class="pause" id="pauseBox">
+                <div>
+                    <h2>Paused</h2>
+                    <button id="resumeBtn">Continue</button>
+                </div>
+            </div>
+        </div>
+
+        <aside class="side">
+            <div class="original">
+                <label>ORIGINAL</label>
+                <img id="originalImage" alt="Original picture">
+            </div>
+
+            <button class="tool" id="undoBtn">↩ Undo</button>
+            <button class="tool" id="hintBtn">💡 Hint</button>
+            <button class="tool" id="mixBtn">🔀 Mix</button>
+            <button class="tool" id="restartBtn">↻ Restart</button>
+        </aside>
+    </div>
+
+    <div class="message" id="message">Find the missing piece.</div>
+</div>
+</section>
+
+<!-- Win page -->
+<section id="win" class="page">
+<div class="win">
+    <div class="win-card">
+        <div style="font-size:50px">🏆</div>
+        <h1>Done.</h1>
+        <p id="winMessage">Nice work.</p>
+
+        <div class="results">
+            <div class="result"><small>Moves</small><b id="finalMoves">0</b></div>
+            <div class="result"><small>Time</small><b id="finalTime">00:00</b></div>
+            <div class="result"><small>XP</small><b id="finalXP">+0</b></div>
+            <div class="result"><small>Coins</small><b id="finalCoins">+0</b></div>
+            <div class="result"><small>Grid</small><b id="finalGrid">2×2</b></div>
+            <div class="result"><small>Best</small><b id="finalBest">-</b></div>
+        </div>
+
+        <p id="reward">⭐ Puzzle solved.</p>
+        <button id="againBtn">Play again</button>
+        <button class="alt" id="winHomeBtn">Home</button>
+    </div>
+</div>
+</section>
+
+<script>
+// I'm not using a framework, just plain JS. Some of this might look messy.
+var player;
+try {
+    player = JSON.parse(localStorage.getItem("mixFixPlayer"));
+} catch (e) {
+    player = null;
+}
+
+if (!player) {
+    player = {
+        xp: 0,
+        coins: 0,
+        solved: 0,
+        streak: 0,
+        totalMoves: 0,
+        mission1: false,
+        mission2: false,
+        mission3: false,
+        best: {},
+        streakData: { last: "", days: [] }
+    };
+}
+
+function save() {
+    localStorage.setItem("mixFixPlayer", JSON.stringify(player));
+}
+
+// Unsplash images, free to use
+var pictures = [
+    "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=900&q=80"
+];
+
+var used = JSON.parse(localStorage.getItem("mixFixUsed") || "[]");
+
+var image = "";
+var size = 2;
+var board = [];
+var empty = 0;
+var moves = 0;
+var seconds = 0;
+var combo = 0;
+var hints = 3;
+var history = [];
+var timer = null;
+var started = false;
+var paused = false;
+
+var home = document.getElementById("home");
+var game = document.getElementById("game");
+var win = document.getElementById("win");
+
+function page(x) {
+    home.classList.remove("show");
+    game.classList.remove("show");
+    win.classList.remove("show");
+    x.classList.add("show");
+}
+
+// Size buttons
+document.querySelectorAll(".size").forEach(function(btn) {
+    btn.onclick = function() {
+        document.querySelectorAll(".size").forEach(function(x) {
+            x.classList.remove("selected");
+        });
+        btn.classList.add("selected");
+        size = Number(btn.dataset.size);
+    };
+});
+
+// Theme buttons
+document.querySelectorAll(".theme").forEach(function(btn) {
+    btn.onclick = function() {
+        document.body.classList.remove("redTheme", "blueTheme", "greenTheme");
+        if (btn.dataset.theme === "red") document.body.classList.add("redTheme");
+        if (btn.dataset.theme === "blue") document.body.classList.add("blueTheme");
+        if (btn.dataset.theme === "green") document.body.classList.add("greenTheme");
+        localStorage.setItem("mixFixTheme", btn.dataset.theme);
+    };
+});
+
+// Add theme CSS dynamically because I'm lazy
+var themeCSS = document.createElement("style");
+themeCSS.textContent = `
+body.redTheme{--bg:#ead8d1;--card:#f8e9e3;--card2:#dfc2b8}
+body.blueTheme{--bg:#dce5ec;--card:#edf4f8;--card2:#c8d8e4}
+body.greenTheme{--bg:#dfe8dc;--card:#eff5ec;--card2:#ceddc9}
+`;
+document.head.appendChild(themeCSS);
+
+var savedTheme = localStorage.getItem("mixFixTheme");
+if (savedTheme) {
+    var t = document.querySelector('[data-theme="' + savedTheme + '"]');
+    if (t) t.click();
+}
+
+// Random picture button
+document.getElementById("randomBtn").onclick = function() {
+    var list = pictures.filter(function(x) {
+        return !used.includes(x);
+    });
+    if (list.length === 0) {
+        used = [];
+        list = pictures.slice();
+    }
+    image = list[Math.floor(Math.random() * list.length)];
+    used.push(image);
+    localStorage.setItem("mixFixUsed", JSON.stringify(used));
+    start();
+};
+
+// Own picture upload
+document.getElementById("photo").onchange = function() {
+    var file = this.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        image = e.target.result;
+        start();
+    };
+    reader.readAsDataURL(file);
+};
+
+// Board functions
+function makeBoard() {
+    board = [];
+    for (var i = 0; i < size * size; i++) board.push(i);
+    empty = board.length - 1;
+}
+
+function choices() {
+    var a = [];
+    var row = Math.floor(empty / size);
+    var col = empty % size;
+    if (row > 0) a.push(empty - size);
+    if (row < size - 1) a.push(empty + size);
+    if (col > 0) a.push(empty - 1);
+    if (col < size - 1) a.push(empty + 1);
+    return a;
+}
+
+function swap(n) {
+    var x = board[empty];
+    board[empty] = board[n];
+    board[n] = x;
+    empty = n;
+}
+
+function solved() {
+    for (var i = 0; i < board.length; i++) {
+        if (board[i] !== i) return false;
+    }
+    return true;
+}
+
+function shuffle() {
+    var last = -1;
+    for (var i = 0; i < size * size * 35; i++) {
+        var a = choices();
+        if (a.length > 1) {
+            a = a.filter(function(x) {
+                return x !== last;
+            });
+        }
+        var n = a[Math.floor(Math.random() * a.length)];
+        last = empty;
+        swap(n);
+    }
+    if (solved()) shuffle();
+}
+
+function draw() {
+    var box = document.getElementById("board");
+    box.innerHTML = "";
+    box.style.gridTemplateColumns = "repeat(" + size + ", 1fr)";
+
+    board.forEach(function(value, index) {
+        var tile = document.createElement("button");
+        tile.className = "tile";
+
+        if (value === size * size - 1) {
+            tile.classList.add("empty");
+            box.appendChild(tile);
+            return;
+        }
+
+        var row = Math.floor(value / size);
+        var col = value % size;
+
+        tile.style.backgroundImage = "url('" + image + "')";
+        tile.style.backgroundSize = (size * 100) + "% " + (size * 100) + "%";
+        tile.style.backgroundPosition = (col / (size - 1) * 100) + "% " + (row / (size - 1) * 100) + "%";
+
+        tile.onclick = function() {
+            move(index);
+        };
+
+        box.appendChild(tile);
+    });
+}
+
+function start() {
+    stopTimer();
+    if (!image) {
+        image = pictures[Math.floor(Math.random() * pictures.length)];
+    }
+    document.getElementById("originalImage").src = image;
+
+    moves = 0;
+    seconds = 0;
+    combo = 0;
+    hints = 3;
+    history = [];
+    started = false;
+    paused = false;
+
+    makeBoard();
+    shuffle();
+
+    document.getElementById("timer").textContent = "00:00";
+    document.getElementById("message").textContent = "Find the missing piece.";
+    updateGame();
+    draw();
+    page(game);
+}
+
+function move(index) {
+    if (paused) return;
+
+    if (!choices().includes(index)) {
+        combo = 0;
+        document.getElementById("message").textContent = "That piece can't move.";
+        updateGame();
+        return;
+    }
+
+    history.push({
+        board: board.slice(),
+        empty: empty
+    });
+
+    swap(index);
+    moves++;
+    combo++;
+    player.totalMoves++;
+
+    if (player.totalMoves >= 30) player.mission2 = true;
+    if (size >= 5) player.mission3 = true;
+    save();
+
+    if (!started) {
+        started = true;
+        startTimer();
+    }
+
+    updateGame();
+    draw();
+
+    if (solved()) finish();
+}
+
+function startTimer() {
+    stopTimer();
+    timer = setInterval(function() {
+        if (paused) return;
+        seconds++;
+        var m = Math.floor(seconds / 60).toString().padStart(2, "0");
+        var s = (seconds % 60).toString().padStart(2, "0");
+        document.getElementById("timer").textContent = m + ":" + s;
+    }, 1000);
+}
+
+function stopTimer() {
+    if (timer) {
+        clearInterval(timer);
+        timer = null;
+    }
+}
+
+// Tool buttons
+document.getElementById("undoBtn").onclick = function() {
+    if (!history.length) {
+        document.getElementById("message").textContent = "Nothing to undo.";
+        return;
+    }
+    var old = history.pop();
+    board = old.board;
+    empty = old.empty;
+    if (moves > 0) moves--;
+    combo = 0;
+    updateGame();
+    draw();
+};
+
+document.getElementById("hintBtn").onclick = function() {
+    if (hints <= 0) {
+        document.getElementById("message").textContent = "No hints left.";
+        return;
+    }
+    var a = choices();
+    var n = a[Math.floor(Math.random() * a.length)];
+    var tile = document.querySelectorAll(".tile")[n];
+    if (tile) {
+        tile.classList.add("hint");
+        setTimeout(function() {
+            tile.classList.remove("hint");
+        }, 900);
+    }
+    hints--;
+    updateGame();
+};
+
+document.getElementById("mixBtn").onclick = function() {
+    start();
+};
+
+document.getElementById("restartBtn").onclick = function() {
+    start();
+};
+
+// Pause
+document.getElementById("pauseBtn").onclick = function() {
+    if (!started) return;
+    paused = true;
+    document.getElementById("pauseBox").classList.add("show");
+};
+
+document.getElementById("resumeBtn").onclick = function() {
+    paused = false;
+    document.getElementById("pauseBox").classList.remove("show");
+    startTimer();
+};
+
+// Streak stuff
+function key(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+function updateStreak() {
+    if (!player.streakData) player.streakData = { last: "", days: [] };
+    var now = new Date();
+    var week = document.getElementById("streakWeek");
+    week.innerHTML = "";
+    var names = ["S", "M", "T", "W", "T", "F", "S"];
+
+    for (var i = 0; i < 7; i++) {
+        var d = new Date(now);
+        d.setDate(now.getDate() - now.getDay() + i);
+        var box = document.createElement("div");
+        box.className = "day";
+        box.textContent = names[i];
+        if (player.streakData.days.includes(key(d))) {
+            box.classList.add("done");
+            box.textContent = "✓";
+        }
+        if (i === now.getDay()) box.classList.add("today");
+        week.appendChild(box);
+    }
+
+    document.getElementById("streakText").textContent = player.streak + (player.streak === 1 ? " day" : " days");
+    document.getElementById("homeStreak").textContent = player.streak;
+    document.getElementById("streakReward").textContent = "+" + Math.min(10 + player.streak * 2, 50) + " XP";
+    document.getElementById("streakNote").textContent = player.streakData.last === key(now) ? "Today's streak is safe. 🔥" : "Solve one puzzle today.";
+}
+
+function markToday() {
+    if (!player.streakData) player.streakData = { last: "", days: [] };
+    var now = new Date();
+    var today = key(now);
+    if (player.streakData.last === today) return;
+
+    var yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    if (player.streakData.last === key(yesterday)) {
+        player.streak++;
+    } else {
+        player.streak = 1;
+        player.streakData.days = [];
+    }
+    player.streakData.days.push(today);
+    player.streakData.last = today;
+    player.xp += Math.min(10 + player.streak * 2, 50);
+    save();
+}
+
+function finish() {
+    stopTimer();
+    var xp = 30;
+    var coins = 5;
+    xp += Math.max(0, 7 - size) * 5;
+    if (size >= 5) { xp += 30; coins += 3; }
+    if (seconds <= 60) { xp += 20; coins += 2; }
+
+    player.xp += xp;
+    player.coins += coins;
+    player.solved++;
+    player.mission1 = true;
+    markToday();
+
+    var bestKey = "b" + size;
+    var best = player.best[bestKey] || 0;
+    var newBest = false;
+    if (!best || moves < best) {
+        best = moves;
+        player.best[bestKey] = moves;
+        newBest = true;
+    }
+    save();
+
+    document.getElementById("finalMoves").textContent = moves;
+    document.getElementById("finalTime").textContent = document.getElementById("timer").textContent;
+    document.getElementById("finalXP").textContent = "+" + xp;
+    document.getElementById("finalCoins").textContent = "+" + coins;
+    document.getElementById("finalGrid").textContent = size + "×" + size;
+    document.getElementById("finalBest").textContent = best;
+
+    document.getElementById("winMessage").textContent = "You finished the " + size + "×" + size + " board in " + moves + " moves.";
+    document.getElementById("reward").textContent = newBest ? "🥇 New personal best!" : seconds <= 60 ? "⚡ Speed bonus!" : "⭐ Nice solve.";
+
+    confetti();
+    updateHome();
+    updateStreak();
+    page(win);
+}
+
+function confetti() {
+    var bits = ["●", "■", "★", "◆"];
+    for (var i = 0; i < 24; i++) {
+        var x = document.createElement("div");
+        x.className = "confetti";
+        x.textContent = bits[Math.floor(Math.random() * bits.length)];
+        x.style.left = Math.random() * 100 + "%";
+        x.style.color = ["#ad4831", "#d5a13b", "#587795", "#5e8060"][Math.floor(Math.random() * 4)];
+        document.body.appendChild(x);
+        setTimeout(function() {
+            x.remove();
+        }, 1900);
+    }
+}
+
+function updateHome() {
+    var level = Math.floor(player.xp / 100) + 1;
+    document.getElementById("levelText").textContent = "Level " + level;
+    document.getElementById("xpText").textContent = player.xp;
+    document.getElementById("coinText").textContent = player.coins;
+    document.getElementById("solveText").textContent = player.solved;
+    document.getElementById("xpFill").style.width = (player.xp % 100) + "%";
+    document.getElementById("mission1").classList.toggle("done", player.mission1);
+    document.getElementById("mission2").classList.toggle("done", player.mission2);
+    document.getElementById("mission3").classList.toggle("done", player.mission3);
+}
+
+function updateGame() {
+    document.getElementById("moves").textContent = moves;
+    document.getElementById("combo").textContent = combo;
+    document.getElementById("gameCoins").textContent = player.coins;
+    document.getElementById("hintCount").textContent = hints;
+    document.getElementById("grid").textContent = size + "×" + size;
+}
+
+// Navigation
+document.getElementById("homeBtn").onclick = function() {
+    stopTimer();
+    updateHome();
+    updateStreak();
+    page(home);
+};
+
+document.getElementById("againBtn").onclick = function() {
+    start();
+};
+
+document.getElementById("winHomeBtn").onclick = function() {
+    updateHome();
+    updateStreak();
+    page(home);
+};
+
+// Dark mode
+if (localStorage.getItem("mixFixDark") === "yes") document.body.classList.add("dark");
+document.getElementById("darkBtn").onclick = function() {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("mixFixDark", document.body.classList.contains("dark") ? "yes" : "no");
+};
+
+// Sound button (just an icon, no actual sound)
+var soundOn = localStorage.getItem("mixFixSound") !== "off";
+document.getElementById("soundBtn").textContent = soundOn ? "🔊" : "🔇";
+document.getElementById("soundBtn").onclick = function() {
+    soundOn = !soundOn;
+    this.textContent = soundOn ? "🔊" : "🔇";
+    localStorage.setItem("mixFixSound", soundOn ? "on" : "off");
+};
+
+// Keyboard controls
+document.addEventListener("keydown", function(e) {
+    if (!game.classList.contains("show")) return;
+
+    if (e.key.toLowerCase() === "p") {
+        if (paused) document.getElementById("resumeBtn").click();
+        else document.getElementById("pauseBtn").click();
+        return;
+    }
+    if (e.key.toLowerCase() === "h") {
+        document.getElementById("hintBtn").click();
+        return;
+    }
+    if (e.key.toLowerCase() === "u") {
+        document.getElementById("undoBtn").click();
+        return;
+    }
+    if (paused) return;
+
+    var row = Math.floor(empty / size);
+    var col = empty % size;
+    var target = -1;
+
+    if (e.key === "ArrowUp" && row < size - 1) target = empty + size;
+    if (e.key === "ArrowDown" && row > 0) target = empty - size;
+    if (e.key === "ArrowLeft" && col < size - 1) target = empty + 1;
+    if (e.key === "ArrowRight" && col > 0) target = empty - 1;
+
+    if (target >= 0) {
+        e.preventDefault();
+        move(target);
+    }
+});
+
+// Init
+updateHome();
+updateStreak();
+updateGame();
+</script>
+
+</body>
+</html>
