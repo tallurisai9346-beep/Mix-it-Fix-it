@@ -78,7 +78,7 @@ Also you can use VS Code with Live Server extension.
 
 I deployed this app using Vercel
 
-Link
+Link:https://mix-it-fix-it.vercel.app/
 
 ## What's Next?
 
