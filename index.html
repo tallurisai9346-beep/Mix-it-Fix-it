@@ -119,7 +119,7 @@ function today(d){
   d = d || new Date();
   return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
 }
-function show(id){many(".screen").forEach(x=>x.classList.remove("show"));$(id).classList.add("show")}
+function show(id){many(".screen").forEach(x=>x.classList.remove("show"));document.querySelector(id).classList.add("show")}
 function neighbors(n){
  const r=Math.floor(n/size),c=n%size,a=[];
  if(r)a.push(n-size);if(r<size-1)a.push(n+size);if(c)a.push(n-1);if(c<size-1)a.push(n+1);return a
